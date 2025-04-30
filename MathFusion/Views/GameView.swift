@@ -178,7 +178,9 @@ struct GameView: View {
                         difficulty: navVM.difficulty,
                         operation: navVM.currentOperation
                     )))
-                    navVM.endGame()
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.6) {
+                           navVM.endGame()
+                       }
                 }
             }
             .disabled(true)
