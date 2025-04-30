@@ -1,18 +1,18 @@
 //
-//  SettingsView.swift
+//  GameOverView.swift
 //  MathFusion
 //
-//  Created by Полина Лущевская on 16.04.25.
+//  Created by Полина Лущевская on 25.04.25.
 //
 
 import SwiftUI
 
-struct SettingsView: View {
+struct GameOverView: View {
     var body: some View {
         Text(/*@START_MENU_TOKEN@*/"Hello, World!"/*@END_MENU_TOKEN@*/)
     }
 }
 
 #Preview {
-    SettingsView()
+    GameOverView()
 }
