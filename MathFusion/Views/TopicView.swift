@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct TopicView: View {
-    
-    @EnvironmentObject var gameVM: GameViewModel
     @EnvironmentObject var navVM: NavigationViewModel
 
     let topics = ["Addition", "Subtraction", "Division", "Multiplication", "Mixed operations"]
@@ -19,7 +17,7 @@ struct TopicView: View {
             RadialGradient(
                 gradient: Gradient(colors: [
                     Color("LightBlue"),
-                    Color("White")
+                    Color.white
                 ]),
                 center: .center,
                 startRadius: 0,
@@ -33,23 +31,30 @@ struct TopicView: View {
                         navVM.selectedScreen = .start
                     }) {
                         Image(systemName: "house")
-                            .font(.system(size: 39))
+                            .font(.system(size: 35))
                             .foregroundColor(.skyBlue)
-                            .padding(.leading,10)
+                            .padding(.leading,15)
                     }
                     Spacer()
                     HStack(spacing: 10) {
-                        Image("Stats")
-                            .resizable()
-                            .renderingMode(.template)
-                            .frame(width: 41, height: 41)
-                            .foregroundColor(.skyBlue)
-                        
-                        Image(systemName: "gearshape")
-                            .font(.system(size: 41))
-                            .foregroundColor(.skyBlue)
+                        Button(action: {
+                            navVM.selectedScreen = .statistics
+                        }){
+                            Image("Stats")
+                                .resizable()
+                                .renderingMode(.template)
+                                .frame(width: 41, height: 41)
+                                .foregroundColor(.skyBlue)
+                        }
+                        Button(action: {
+                            navVM.selectedScreen = .rules
+                        }){
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 35))
+                                .foregroundColor(.skyBlue)
+                        }
                     }
-                    .padding(.trailing, 10)
+                    .padding(.trailing, 15)
                 }
                 .padding(.top, 5)
                 .frame(maxWidth: .infinity)
@@ -67,7 +72,7 @@ struct TopicView: View {
                 ], spacing: 25) {
                     ForEach(topics, id: \.self) { topic in
                         Button(action: {
-                            gameVM.selectedTopic = topic
+                            navVM.selectedTopic = topic
                             navVM.selectedScreen = .levels
                         }) {
                             HStack {
@@ -100,13 +105,8 @@ struct TopicView: View {
 struct TopicView_Previews: PreviewProvider {
     static var previews: some View {
         let scoresVM = ScoresViewModel()
-        scoresVM.loadScores()
-        let timerVM = TimerViewModel()
         
-        let gameVM = GameViewModel(difficulty: 20, timerVM: timerVM, scoresVM: scoresVM)
-
         return TopicView()
-            .environmentObject(gameVM)
             .environmentObject(NavigationViewModel())
             .environmentObject(scoresVM)
     }

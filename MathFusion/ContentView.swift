@@ -23,8 +23,10 @@ struct ContentView: View {
                 GameView()
             case .statistics:
                 StatsView()
-            case .settings:
-                SettingsView()
+            case .rules:
+                RulesView()
+            case .gameOver:
+                GameOverView()
             }
         }
     }

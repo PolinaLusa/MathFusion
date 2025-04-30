@@ -1,0 +1,6 @@
+framework module Pods_MathFusionTests {
+  umbrella header "Pods-MathFusionTests-umbrella.h"
+
+  export *
+  module * { export * }
+}

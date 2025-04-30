@@ -8,8 +8,6 @@
 import SwiftUI
 
 struct MainView: View {
-    
-    @EnvironmentObject var gameVM: GameViewModel
     @EnvironmentObject var timerVM: TimerViewModel
     @EnvironmentObject var navVM: NavigationViewModel
     @EnvironmentObject var scoresVM: ScoresViewModel
@@ -19,7 +17,7 @@ struct MainView: View {
             RadialGradient(
                 gradient: Gradient(colors: [
                     Color("LightBlue"),
-                    Color("White")
+                    Color.white
                 ]),
                 center: .center,
                 startRadius: 0,
@@ -29,18 +27,25 @@ struct MainView: View {
             
             VStack {
                 HStack(spacing: 10) {
-                    Image("Stats")
-                        .resizable()
-                        .renderingMode(.template)
-                        .frame(width: 41, height: 41)
-                        .foregroundColor(.skyBlue)
-                    
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 41))
-                        .foregroundColor(.skyBlue)
+                    Button(action: {
+                        navVM.selectedScreen = .statistics
+                    }){
+                        Image("Stats")
+                            .resizable()
+                            .renderingMode(.template)
+                            .frame(width: 41, height: 41)
+                            .foregroundColor(.skyBlue)
+                    }
+                    Button(action: {
+                        navVM.selectedScreen = .rules
+                    }){
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 35))
+                            .foregroundColor(.skyBlue)
+                    }
                 }
                 .frame(maxWidth: .infinity, alignment: .trailing)
-                .padding(.trailing, 10)
+                .padding(.trailing, 15)
                 .padding(.top, 5)
                 
                 Spacer()
@@ -73,48 +78,32 @@ struct MainView: View {
                         }
                     }
                 }
+                .frame(width: 317, height: 386)
+                .background(Color.white.opacity(0.55))
+                .foregroundColor(.darkBlue)
+                .clipShape(RoundedRectangle(cornerRadius: 47, style: .continuous))
             }
-            .frame(width: 317, height: 386)
-            .background(Color.white.opacity(0.55))
-            .foregroundColor(.darkBlue)
-            .clipShape(RoundedRectangle(cornerRadius: 47, style: .continuous))
-            .clipped()
             
             Button {
-                gameVM.generateQuestion()
-                gameVM.generateAnswers()
-                timerVM.resetTimer()
+                navVM.generateQuestion()
+                timerVM.startTimer(duration: 30) 
                 navVM.selectedScreen = .topics
             } label: {
                 StartButton(text: "Start")
             }
             .offset(y: 300)
-            
-            Text("Top score: ☆\(scoresVM.currentTopScore(for: gameVM.difficulty))")
-                .font(.custom("Kanit-Regular", size: 20))
-                .foregroundColor(Color("MediumBlue"))
-                .offset(y:350)
         }
     }
     
     var timerRing: some View {
         TimerView(timeRemaning: $timerVM.timeRemaining,
-                  progress: $timerVM.progress)
+                 progress: $timerVM.progress)
         .frame(width: 99, height: 99)
-        .cornerRadius(47)
-        .onAppear(perform: {
-            timerVM.resetTimer()
-        })
-        .onReceive(timerVM.timerPublisher) { _ in
-            if navVM.selectedScreen == .start {
-                timerVM.timeRemaining -= 1
-                timerVM.progress = Float(1 - (timerVM.timeRemaining / 5.0))
-                
-                if timerVM.timeRemaining < 0 {
-                    timerVM.timeRemaining = 5
-                    timerVM.progress = 0
-                }
+        .onAppear {
+            timerVM.onTimerFinish = {
+                navVM.selectedScreen = .topics
             }
+            timerVM.startTimer(duration: 60)
         }
         .disabled(true)
     }
@@ -123,15 +112,13 @@ struct MainView: View {
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
         let scoresVM = ScoresViewModel()
-        scoresVM.loadScores()
-        
         let timerVM = TimerViewModel()
-        let gameVM = GameViewModel(difficulty: 20, timerVM: timerVM, scoresVM: scoresVM)
-        
+        let navVM = NavigationViewModel()
+
         return MainView()
             .environmentObject(timerVM)
-            .environmentObject(gameVM)
-            .environmentObject(NavigationViewModel())
+
+            .environmentObject(navVM)
             .environmentObject(scoresVM)
     }
 }

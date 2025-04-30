@@ -9,60 +9,64 @@ import SwiftUI
 import Combine
 
 class TimerViewModel: ObservableObject {
-    @Published var timeRemaining: Float = 5.0
+    @Published var timeRemaining: Float = 0.0
     @Published var progress: Float = 0.0
-    
-    var timerPublisher: Publishers.Autoconnect<Timer.TimerPublisher> {
-        return everySecTimer
+    @Published var isTimerFinished: Bool = false
+    @Published var isRunning: Bool = false
+    private var timerSubscription: Cancellable?
+
+    var duration: Float = 0.0
+    var onTimerFinish: (() -> Void)?
+
+    func startTimer(duration: Float) {
+        self.duration = duration
+        self.timeRemaining = duration
+        self.progress = 0
+        self.isTimerFinished = false
+        
+        stopTimer() // Останавливаем предыдущий таймер, если был
+        
+        isRunning = true
+        timerSubscription = Timer.publish(every: 1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                guard let self = self else { return }
+                if self.timeRemaining > 0 {
+                    self.timeRemaining -= 1
+                    self.progress = 1 - (self.timeRemaining / self.duration)
+                } else {
+                    self.isTimerFinished = true
+                    self.stopTimer()
+                    self.onTimerFinish?()
+                }
+            }
     }
-    
-    private var everySecTimer = Timer.publish(every: 1, tolerance: 1, on: .main, in: .common).autoconnect()
-//    private var timer: AnyCancellable?
-    var duration: Float = 5.0
-    
-    func startTimer() {
-        everySecTimer = Timer.publish(every: 1, tolerance: 1, on: .main, in: .common).autoconnect()
-    }
-    
-//    func start(duration: Float = 5.0) {
-//        self.duration = duration
-//        timeRemaining = duration
-//        progress = 0.0
-//        
-//        timer?.cancel()
-//        timer = Timer
-//            .publish(every: 1, on: .main, in: .common)
-//            .autoconnect()
-//            .sink { [weak self] _ in
-//                guard let self = self else { return }
-//                
-//                self.timeRemaining -= 1
-//                self.progress = 1 - (self.timeRemaining / self.duration)
-//                
-//                if self.timeRemaining <= 0 {
-//                    self.reset()
-//                }
-//            }
-//    }
-    
+
     func stopTimer() {
-        everySecTimer.upstream.connect().cancel()
+        timerSubscription?.cancel()
+        isRunning = false
     }
-    
-//    func stop() {
-//        timer?.cancel()
-//        timer = nil
-//    }
-    
-    func resetTimer() {
-        timeRemaining = 5
-        progress = 0
-        startTimer()
+
+    var timeMessage: String {
+        switch timeRemaining {
+        case 0...1:
+            return "Time's over!"
+        case 1...5:
+            return "Time's almost up!"
+        case 6...15:
+            return "Quick! Quick!"
+        case 16...25:
+            return "Hurry up!"
+        case 26...35:
+            return "Don't slow down!"
+        case 36...50:
+            return "Keep pushing!"
+        case 51...70:
+            return "You're doing great!"
+        case 71...150:
+            return "Let's go!"
+        default:
+            return "Ready?"
+        }
     }
-    
-//    func reset() {
-//        stop()
-//        timeRemaining = duration
-//        progress = 0
-//    }
 }

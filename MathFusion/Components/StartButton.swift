@@ -9,7 +9,7 @@ import SwiftUI
 
 struct StartButton: View {
     
-    @EnvironmentObject var logic: GameViewModel
+    @EnvironmentObject var logic: NavigationViewModel
     
     var text: String
     
@@ -26,13 +26,7 @@ struct StartButton: View {
 
 struct StartButton_Previews: PreviewProvider {
     static var previews: some View {
-        let scoresVM = ScoresViewModel()
-        scoresVM.loadScores()
-        let timerVM = TimerViewModel()
-
-        let gameVM = GameViewModel(difficulty: 20, timerVM: timerVM, scoresVM: scoresVM)
-
         return StartButton(text: "Start")
-            .environmentObject(gameVM)
+            .environmentObject(NavigationViewModel())
     }
 }

@@ -12,14 +12,14 @@ class RealmManager {
     
     static let shared = RealmManager()
     
-    private init() {}
+    private init() {
+        setupRealm()
+    }
     
-    // Получаем доступ к базе данных
     private var realm: Realm {
         return try! Realm()
     }
     
-    // Сохранение результата игры в базу данных
     func saveGameResult(result: GameResult) {
         do {
             try realm.write {
@@ -30,15 +30,28 @@ class RealmManager {
         }
     }
     
-    // Получение всех результатов игры
     func getAllGameResults() -> [GameResult] {
+        Array(realm.objects(GameResult.self))
+    }
+    
+    func getResults(forTopic topic: String, level: String) -> [GameResult] {
         let results = realm.objects(GameResult.self)
+            .filter("topic == %@ AND level == %@", topic, level)
         return Array(results)
     }
     
-    // Получение результатов игры по уровню и сложности
-    func getResults(forLevel level: String, difficulty: String) -> [GameResult] {
-        let results = realm.objects(GameResult.self).filter("level == %@ AND difficulty == %@", level, difficulty)
-        return Array(results)
+    private func setupRealm() {
+        let config = Realm.Configuration(
+            schemaVersion: 3,
+            migrationBlock: { migration, oldSchemaVersion in
+                if oldSchemaVersion < 2 {
+                    migration.enumerateObjects(ofType: GameResult.className()) { oldObject, newObject in
+                        newObject?["topic"] = oldObject?["level"] ?? ""
+                        newObject?["level"] = oldObject?["difficulty"] ?? ""
+                    }
+                }
+            }
+        )
+        Realm.Configuration.defaultConfiguration = config
     }
 }

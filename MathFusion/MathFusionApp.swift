@@ -7,13 +7,16 @@
 
 import SwiftUI
 import SwiftData
+import RealmSwift
 
 @main
-struct MathFusionApp: App {
+struct MathFusionApp: SwiftUI.App {
+    init() {
+        _ = RealmManager.shared
+    }
+    
     var sharedModelContainer: ModelContainer = {
-        let schema = Schema([
-            Item.self,
-        ])
+        let schema = Schema([Item.self])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 
         do {
@@ -28,14 +31,11 @@ struct MathFusionApp: App {
     @StateObject var timerVM = TimerViewModel()
     
     var body: some Scene {
-        let gameVM = GameViewModel(difficulty: 20, timerVM: timerVM, scoresVM: scoresVM)
-        
         WindowGroup {
             ContentView()
                 .environmentObject(navVM)
                 .environmentObject(scoresVM)
                 .environmentObject(timerVM)
-                .environmentObject(gameVM)
         }
         .modelContainer(sharedModelContainer)
     }
