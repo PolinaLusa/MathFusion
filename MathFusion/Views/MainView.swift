@@ -86,7 +86,6 @@ struct MainView: View {
             
             Button {
                 navVM.generateQuestion()
-                timerVM.startTimer(duration: 30) 
                 navVM.selectedScreen = .topics
             } label: {
                 StartButton(text: "Start")
@@ -100,9 +99,6 @@ struct MainView: View {
                  progress: $timerVM.progress)
         .frame(width: 99, height: 99)
         .onAppear {
-            timerVM.onTimerFinish = {
-                navVM.selectedScreen = .topics
-            }
             timerVM.startTimer(duration: 60)
         }
         .disabled(true)

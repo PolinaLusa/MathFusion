@@ -24,7 +24,7 @@ class TimerViewModel: ObservableObject {
         self.progress = 0
         self.isTimerFinished = false
         
-        stopTimer() // Останавливаем предыдущий таймер, если был
+        stopTimer()
         
         isRunning = true
         timerSubscription = Timer.publish(every: 1, on: .main, in: .common)
